@@ -44,7 +44,7 @@ contract UniswapV2Factory is IUniswapV2Factory, Ownable {
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
-        IUniswapV2Pair(pair).initialize(token0, token1);
+        IUniswapV2Pair(pair).initialize(token0, token1, defaultSwapFee, defaultPlatformFee);
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
@@ -57,15 +57,15 @@ contract UniswapV2Factory is IUniswapV2Factory, Ownable {
     }
     
     function setDefaultSwapFee(uint _swapFee) external onlyOwner {
-        require(_swapFee < MAX_SWAP_FEE, "Vexchange: INVALID_SWAP_FEE");
-        require(_swapFee > MIN_SWAP_FEE, "Vexchange: INVALID_SWAP_FEE");
+        require(_swapFee <= MAX_SWAP_FEE, "Vexchange: INVALID_SWAP_FEE");
+        require(_swapFee >= MIN_SWAP_FEE, "Vexchange: INVALID_SWAP_FEE");
         
         emit DefaultSwapFeeChanged(defaultSwapFee, _swapFee);
         defaultSwapFee = _swapFee;
     }
     
     function setDefaultPlatformFee(uint _platformFee) external onlyOwner {
-        require(_platformFee < MAX_PLATFORM_FEE, "Vexchange: INVALID_PLATFORM_FEE");
+        require(_platformFee <= MAX_PLATFORM_FEE, "Vexchange: INVALID_PLATFORM_FEE");
         
         emit DefaultPlatformFeeChanged(defaultPlatformFee, _platformFee);
         defaultPlatformFee = _platformFee;
